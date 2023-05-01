@@ -5,7 +5,9 @@ class DataService {
   final ValueNotifier<List> tableStateNotifier = new ValueNotifier([]);
 
   void carregar(index) {
+    if (index == 0) carregarCafe();
     if (index == 1) carregarCervejas();
+    if (index == 2) carregarNacao();
   }
 
   void carregarCervejas() {
@@ -13,6 +15,22 @@ class DataService {
       {"name": "La Fin Du Monde", "style": "Bock", "ibu": "65"},
       {"name": "Sapporo Premiume", "style": "Sour Ale", "ibu": "54"},
       {"name": "Duvel", "style": "Pilsner", "ibu": "82"}
+    ];
+  }
+
+  void carregarCafe() {
+    tableStateNotifier.value = [
+      {"name": "Espresso", "style": "Italia", "ibu": "7"},
+      {"name": "Cappuccino", "style": "Italia", "ibu": "12"},
+      {"name": "Irish Coffee", "style": "Irlanda", "ibu": "9"}
+    ];
+  }
+
+  void carregarNacao() {
+    tableStateNotifier.value = [
+      {"name": "Espanhol", "style": "Românica", "ibu": "23"},
+      {"name": "Alemão", "style": "Germânica", "ibu": "11"},
+      {"name": "Mandarim", "style": "Sinítica", "ibu": "14"}
     ];
   }
 }
@@ -42,7 +60,8 @@ class MyApp extends StatelessWidget {
                     propertyNames: ["name", "style", "ibu"],
                     columnNames: ["Nome", "Estilo", "IBU"]);
               }),
-          bottomNavigationBar: NewNavBar(itemSelectedCallback: dataService.carregar),
+          bottomNavigationBar:
+              NewNavBar(itemSelectedCallback: dataService.carregar),
         ));
   }
 }
