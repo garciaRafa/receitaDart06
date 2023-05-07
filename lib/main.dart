@@ -3,6 +3,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 class DataService {
   final ValueNotifier<List> tableStateNotifier = new ValueNotifier([]);
+  final ValueNotifier<List<String>> columnNamesNotifier = new ValueNotifier([]);
+  final ValueNotifier<List<String>> propertyNamesNotifier =
+      new ValueNotifier([]);
 
   void carregar(index) {
     if (index == 0) carregarCafe();
@@ -16,22 +19,28 @@ class DataService {
       {"name": "Sapporo Premiume", "style": "Sour Ale", "ibu": "54"},
       {"name": "Duvel", "style": "Pilsner", "ibu": "82"}
     ];
+    columnNamesNotifier.value = ["Nome", "Estilo", "IBU"];
+    propertyNamesNotifier.value = ["name", "style", "ibu"];
   }
 
   void carregarCafe() {
     tableStateNotifier.value = [
-      {"name": "Espresso", "style": "Italia", "ibu": "7"},
-      {"name": "Cappuccino", "style": "Italia", "ibu": "12"},
-      {"name": "Irish Coffee", "style": "Irlanda", "ibu": "9"}
+      {"name": "Melty Bean", "origin": "Guatemala", "intensifier": "Vibrante"},
+      {"name": "Blue Been", "origin": "Nicarágua", "intensifier": "Denso"},
+      {"name": "Seattle Forrester", "origin": "Iêmen", "intensifier": "Crocante"}
     ];
+    columnNamesNotifier.value = ["Nome", "Origem", "Intensificador"];
+    propertyNamesNotifier.value = ["name", "origin", "intensifier"];
   }
 
   void carregarNacao() {
     tableStateNotifier.value = [
-      {"name": "Espanhol", "style": "Românica", "ibu": "23"},
-      {"name": "Alemão", "style": "Germânica", "ibu": "11"},
-      {"name": "Mandarim", "style": "Sinítica", "ibu": "14"}
+      {"language": "Espanhol", "family": "Românica", "countries": "65"},
+      {"language": "Alemão", "family": "Germânica", "countries": "115"},
+      {"language": "Mandarim", "family": "Sino-tibetana", "countries": "6"}
     ];
+    columnNamesNotifier.value = ["Língua", "Família", "Países"];
+    propertyNamesNotifier.value = ["language", "family", "countries"];
   }
 }
 
@@ -50,15 +59,15 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           appBar: AppBar(
-            title: const Text("Dicas"),
+            title: const Text("Receita 6"),
           ),
           body: ValueListenableBuilder(
               valueListenable: dataService.tableStateNotifier,
               builder: (_, value, __) {
                 return DataTableWidget(
                     jsonObjects: value,
-                    propertyNames: ["name", "style", "ibu"],
-                    columnNames: ["Nome", "Estilo", "IBU"]);
+                    columnNames: dataService.columnNamesNotifier.value,
+                    propertyNames: dataService.propertyNamesNotifier.value);
               }),
           bottomNavigationBar:
               NewNavBar(itemSelectedCallback: dataService.carregar),
@@ -75,7 +84,7 @@ class NewNavBar extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var state = useState(1);
+    var state = useState(0);
     return BottomNavigationBar(
         onTap: (index) {
           state.value = index;
@@ -102,11 +111,15 @@ class DataTableWidget extends StatelessWidget {
 
   DataTableWidget(
       {this.jsonObjects = const [],
-      this.columnNames = const ["Nome", "Estilo", "IBU"],
-      this.propertyNames = const ["name", "style", "ibu"]});
+      this.columnNames = const [],
+      this.propertyNames = const []});
 
   @override
   Widget build(BuildContext context) {
+    if (columnNames.isEmpty) {
+      return Center(child: Text('Não há colunas disponíveis.'));
+    }
+
     return DataTable(
         columns: columnNames
             .map((name) => DataColumn(
@@ -117,7 +130,7 @@ class DataTableWidget extends StatelessWidget {
         rows: jsonObjects
             .map((obj) => DataRow(
                 cells: propertyNames
-                    .map((propName) => DataCell(Text(obj[propName])))
+                    .map((propName) => DataCell(Text(obj[propName] ?? '')))
                     .toList()))
             .toList());
   }
